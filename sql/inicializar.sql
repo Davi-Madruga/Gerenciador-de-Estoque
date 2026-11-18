@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS wordpress CHARACTER SET utf8mb4;
+GRANT ALL PRIVILEGES ON wordpress.* TO 'grupo03'@'%';

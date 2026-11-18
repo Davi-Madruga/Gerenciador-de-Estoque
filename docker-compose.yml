@@ -1,0 +1,46 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Preencha o .env}
+      MYSQL_DATABASE: estoque
+      MYSQL_USER: grupo03
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Preencha o .env}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/inicializar.sql:/docker-entrypoint-initdb.d/10-bancos.sql:ro
+    ports:
+      - "3303:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_PASSWORD mysql --protocol=TCP -h 127.0.0.1 -u grupo03 wordpress -e 'SELECT 1'"]
+      interval: 5s
+      timeout: 4s
+      retries: 40
+  estoque:
+    build: .
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Preencha o .env}
+      MYSQL_USER: grupo03
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Preencha o .env}
+    ports:
+      - "8003:8003"
+  wordpress:
+    image: wordpress:php8.3-apache
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: grupo03
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:?Preencha o .env}
+    volumes:
+      - wordpress_data:/var/www/html
+    ports:
+      - "9003:80"
+volumes:
+  mysql_data:
+  wordpress_data:

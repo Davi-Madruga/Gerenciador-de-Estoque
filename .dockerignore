@@ -1,0 +1,8 @@
+*
+!requirements.txt
+!manage.py
+!app/
+!app/**
+!projeto/
+!projeto/**
+**/__pycache__/
